@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My C++ Calculator</title>
+<style>
+body { 
+  font-family: Arial, sans-serif; 
+  background: #edf3fa;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  min-height: 100vh; 
+  margin: 0; 
+}
+.calculator { 
+  background: #25354b; 
+  padding: 20px;
+  border-radius: 16px; 
+  width: 300px; 
+}
+h2, #status { 
+  color: white; 
+  text-align: center; 
+}
+#screen { 
+  background: white; 
+  padding: 18px; 
+  border-radius: 8px;
+  font-size: 30px; 
+  text-align: right; 
+  margin-bottom: 14px;
+  overflow-wrap: anywhere; 
+}
+.buttons { 
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px; 
+}
+button { 
+  padding: 15px 0; 
+  font-size: 20px; 
+  border: 0;
+  border-radius: 8px; 
+  cursor: pointer; 
+}
+.operator { background: #ffba6b; }
+.clear { background: #fa8585; }
+.equals { 
+  background: #509bed; 
+  color: white;
+  grid-column: span 4; 
+}
+#status { font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="calculator">
+  <h2>C++ Calculator</h2>
+  <div id="screen">0</div>
+  <div class="buttons">
+    <button onclick="digit('7')">7</button>
+    <button onclick="digit('8')">8</button>
+    <button onclick="digit('9')">9</button>
+    <button class="operator" onclick="choose(4)">÷</button>
+    <button onclick="digit('4')">4</button>
+    <button onclick="digit('5')">5</button>
+    <button onclick="digit('6')">6</button>
+    <button class="operator" onclick="choose(3)">×</button>
+    <button onclick="digit('1')">1</button>
+    <button onclick="digit('2')">2</button>
+    <button onclick="digit('3')">3</button>
+    <button class="operator" onclick="choose(2)">−</button>
+    <button class="clear" onclick="clearAll()">C</button>
+    <button onclick="digit('0')">0</button>
+    <button onclick="digit('.')">.</button>
+    <button class="operator" onclick="choose(1)">+</button>
+    <button class="equals" onclick="equals()">=</button>
+  </div>
+  <p id="status">Loading C++...</p>
+</div>
+
+<script>
+let ready = false;
+let firstNumber = 0;
+let operation = 0;
+let newNumber = true;
+const screen = document.getElementById('screen');
+
+var Module = {
+  onRuntimeInitialized: function () {
+    ready = true;
+    document.getElementById('status').textContent = 'C++ engine ready!';
+  }
+};
+
+function digit(value) {
+  if (screen.textContent === 'Error') {
+    screen.textContent = '0';
+  }
+  if (newNumber) {
+    screen.textContent = '0';
+    newNumber = false;
+  }
+  if (value === '.' && screen.textContent.includes('.')) return;
+  if (screen.textContent === '0' && value !== '.') {
+    screen.textContent = value;
+  } else {
+    screen.textContent += value;
+  }
+}
+
+function choose(op) {
+  if (screen.textContent === 'Error') return;
+  // Evaluate pending operation if another operator is pressed sequentially
+  if (operation !== 0 && !newNumber) {
+    equals();
+  }
+  firstNumber = Number(screen.textContent);
+  operation = op;
+  newNumber = true;
+}
+
+function equals() {
+  if (!ready) { 
+    alert('C++ is loading!'); 
+    return; 
+  }
+  if (operation === 0 || screen.textContent === 'Error') return;
+  
+  const secondNumber = Number(screen.textContent);
+  const result = Module.ccall(
+    'calculate', 
+    'number',
+    ['number', 'number', 'number'],
+    [firstNumber, secondNumber, operation]
+  );
+
+  screen.textContent = Number.isFinite(result)
+    ? String(Number(result.toPrecision(12))) 
+    : 'Error';
+
+  operation = 0;
+  newNumber = true;
+}
+
+function clearAll() {
+  screen.textContent = '0';
+  firstNumber = 0;
+  operation = 0;
+  newNumber = true;
+}
+</script>
+<script src="calculator.js"></script>
+</body>
+</html>
